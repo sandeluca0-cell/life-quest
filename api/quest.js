@@ -8,8 +8,7 @@ export default async function handler(req, res) {
   try {
     const { state } = req.body;
     const apiKey = process.env.ANTHROPIC_KEY;
-    
-    if (!apiKey) return res.status(500).json({ error: 'API key tidak ditemukan' });
+    if (!apiKey) return res.status(500).json({ error: 'No API key' });
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
@@ -21,41 +20,34 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
         max_tokens: 400,
+        system: 'Kamu adalah AI quest generator RPG. Selalu balas HANYA dengan JSON valid tanpa markdown, tanpa penjelasan apapun.',
         messages: [{
           role: 'user',
-          content: `Kamu adalah AI quest generator RPG kehidupan nyata. Buat 1 quest personal dalam Bahasa Indonesia berdasarkan data:
-- Level: ${state?.level || 1}, EXP: ${state?.totalExp || 0}
-- Streak No Goon: ${state?.streak || 0} hari
-- Tidur: ${state?.sleep?.hrs || 0} jam
-- Stats: INT ${state?.stats?.int || 0}, STR ${state?.stats?.str || 0}, DEX ${state?.stats?.dex || 0}
+          content: `Buat 1 quest RPG personal dalam Bahasa Indonesia untuk player ini:
+Level ${state?.level||1}, EXP ${state?.totalExp||0}, Streak NoGoon ${state?.streak||0} hari, Tidur ${state?.sleep?.hrs||0} jam.
 
-Balas HANYA dengan JSON ini (tanpa markdown):
-{"title":"judul singkat","desc":"deskripsi 1-2 kalimat motivating","reward":"+30 EXP","type":"daily","emoji":"⚔️"}`
+Balas dengan JSON ini saja:
+{"title":"judul quest","desc":"deskripsi motivating 1-2 kalimat","reward":"+30 EXP","type":"daily","emoji":"⚔️"}`
         }]
       })
     });
 
     const raw = await response.json();
+    const text = (raw?.content?.[0]?.text || '').replace(/```json|```/g,'').trim();
     
-    if (!response.ok) {
-      return res.status(500).json({ error: 'Anthropic error', detail: raw });
-    }
+    let quest;
+    try { quest = JSON.parse(text); }
+    catch { quest = { title:'Quest Harian', desc: text||'Tetap semangat!', reward:'+30 EXP', type:'daily', emoji:'⚔️' }; }
 
-    const text = raw?.content?.[0]?.text || '{}';
-    
-    try {
-      const quest = JSON.parse(text);
-      return res.status(200).json(quest);
-    } catch {
-      return res.status(200).json({
-        title: 'Quest Harian',
-        desc: text,
-        reward: '+30 EXP',
-        type: 'daily',
-        emoji: '⚔️'
-      });
-    }
-  } catch (err) {
+    return res.status(200).json({
+      title: quest.title || 'Quest Harian',
+      desc: quest.desc || 'Tetap semangat hari ini!',
+      reward: quest.reward || '+30 EXP',
+      type: quest.type || 'daily',
+      emoji: quest.emoji || '⚔️'
+    });
+
+  } catch(err) {
     return res.status(500).json({ error: err.message });
   }
 }
