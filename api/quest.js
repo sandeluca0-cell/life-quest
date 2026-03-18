@@ -44,3 +44,4 @@ Respond dengan JSON ONLY tanpa markdown:
     res.status(200).json({ title: 'Quest Harian', desc: text, reward: '+30 EXP', type: 'daily', emoji: '⚔️' });
   }
 }
+
