@@ -34,6 +34,9 @@ Balas dengan JSON ini saja:
 
     const raw = await response.json();
     const text = (raw?.content?.[0]?.text || '').replace(/```json|```/g,'').trim();
+console.log('RAW TEXT:', text);
+console.log('RAW RESPONSE:', JSON.stringify(raw));
+
     
     let quest;
     try { quest = JSON.parse(text); }
