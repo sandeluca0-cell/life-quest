@@ -35,14 +35,21 @@ export default async function handler(req, res) {
         max_tokens: 200,
         temperature: 0.9,
         response_format: { type: 'json_object' },
-        messages: [
-          {
-            role: 'system',
-            content: 'Kamu adalah AI quest generator RPG kehidupan nyata. Balas dengan JSON valid saja. Buat quest yang relevan dengan waktu dan kondisi player.'
-          },
-          {
-            role: 'user',
-            content: `Buat 1 quest RPG personal dalam Bahasa Indonesia.
+       messages: [
+  {
+    role: 'system',
+    content: 'Kamu adalah sistem tracker produktivitas dunia nyata. JANGAN pernah memberikan quest fantasi, sihir, atau pertarungan. Berikan quest dunia nyata yang logis.'
+  },
+  {
+    role: 'user',
+    content: `Buat 1 quest RPG kehidupan nyata dalam Bahasa Indonesia.
+Konteks Player: Pelajar kelas 10, rutin nge-gym, fokus target OSN Fisika, berencana ambil les untuk kelas 11 atau mulai semester 2 ini jika sudah kelelahan belajar sendiri, dan sedang menabung merakit PC.
+Waktu sekarang: ${hari} ${waktu} (jam ${jam}.00 WIB).
+Kondisi Player: Level ${level}, Streak NoGoon ${streak} hari, Tidur ${hrs} jam, INT ${int_}, STR ${str_}, DEX ${dex_}.
+Buat quest dunia nyata yang spesifik, masuk akal, dan bisa dikerjakan di waktu ${waktu} ini! 
+Balas HANYA dengan JSON: {"title":"judul quest","desc":"deskripsi singkat yang realistis","reward":"+30 EXP","type":"daily","emoji":"💪"}`
+  }
+]
 Waktu sekarang: ${hari} ${waktu} (jam ${jam}.00 WIB).
 Player: Level ${level}, Streak NoGoon ${streak} hari, Tidur ${hrs} jam, INT ${int_}, STR ${str_}, DEX ${dex_}.
 Buat quest yang spesifik dan relevan dengan waktu ${waktu} ini!
