@@ -19,6 +19,11 @@ export default async function handler(req, res) {
     const str_ = state.stats?.str || 0;
     const dex_ = state.stats?.dex || 0;
 
+    const now = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+    const jam = now.getHours();
+    const waktu = jam < 5 ? 'dini hari' : jam < 11 ? 'pagi' : jam < 15 ? 'siang' : jam < 18 ? 'sore' : 'malam';
+    const hari = ['Minggu','Senin','Selasa','Rabu','Kamis','Jumat','Sabtu'][now.getDay()];
+
     const r = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -33,11 +38,15 @@ export default async function handler(req, res) {
         messages: [
           {
             role: 'system',
-            content: 'Kamu adalah AI quest generator RPG kehidupan nyata. Balas dengan JSON valid saja.'
+            content: 'Kamu adalah AI quest generator RPG kehidupan nyata. Balas dengan JSON valid saja. Buat quest yang relevan dengan waktu dan kondisi player.'
           },
           {
             role: 'user',
-            content: `Buat 1 quest RPG personal dalam Bahasa Indonesia. Player: Level ${level}, Streak NoGoon ${streak} hari, Tidur ${hrs} jam, INT ${int_}, STR ${str_}, DEX ${dex_}. Balas JSON: {"title":"judul","desc":"deskripsi motivating","reward":"+30 EXP","type":"daily","emoji":"⚔️"}`
+            content: `Buat 1 quest RPG personal dalam Bahasa Indonesia.
+Waktu sekarang: ${hari} ${waktu} (jam ${jam}.00 WIB).
+Player: Level ${level}, Streak NoGoon ${streak} hari, Tidur ${hrs} jam, INT ${int_}, STR ${str_}, DEX ${dex_}.
+Buat quest yang spesifik dan relevan dengan waktu ${waktu} ini!
+Balas JSON: {"title":"judul quest","desc":"deskripsi 1-2 kalimat motivating yang relevan dengan kondisi sekarang","reward":"+30 EXP","type":"daily","emoji":"⚔️"}`
           }
         ]
       })
