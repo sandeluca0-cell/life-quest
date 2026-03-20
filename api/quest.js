@@ -36,7 +36,7 @@ Balas dengan JSON ini saja, isi dengan konten yang relevan dan motivating:
     });
 
     const raw = await response.json();
-   const full = (raw?.content?.[0]?.text || '').trim();
+   const full = '{' + (raw?.content?.[0]?.text || '').trim();
     
     try {
       const q = JSON.parse(full);
